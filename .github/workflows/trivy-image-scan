@@ -1,0 +1,57 @@
+name: Build-Scan-Push
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BuildNumber: ${{ github.run_id }}-${{ github.run_number }}
+  ImageName: 'liamgu/container-scanning-demo'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v1.1.0
+      with:
+        # Comma-delimited list of tags. These will be added to the registry/repository to form the image's tags
+        tags: '${{ github.sha }}'
+        # Path to the build context
+        path: 'infrastructure'
+        # Path to the Dockerfile (Default is '{path}/Dockerfile')
+        dockerfile: 'health-check/Dockerfile'
+        # Whether to push the image
+        push: false
+  
+    - name: Trivy Scan - Unknown, Low and Medium Severity
+      uses: aquasecurity/trivy-action@0.0.7
+      with:
+        # image reference
+        image-ref: health-check:${{ github.sha }}
+        # exit code when vulnerabilities were found
+        exit-code: 0
+        # severities of vulnerabilities to be displayed
+        severity: UNKNOWN,LOW,MEDIUM
+        
+    - name: Trivy Scan - High and Critical Severity
+      uses: aquasecurity/trivy-action@0.0.7
+      with:
+        # image reference
+        image-ref: health-check:${{ github.sha }}
+        # exit code when vulnerabilities were found
+        exit-code: 1
+        # severities of vulnerabilities to be displayed
+        severity: HIGH,CRITICAL
