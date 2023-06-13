@@ -10,11 +10,10 @@ jobs:
       matrix:
         image_path: [./health-check, ./goat-home]
         include:
-          - image_name: he-ch-test-name
-            image_path: ./health-check
-          - image_name: go-ho-test-name
-            image_path: ./goat-home
-    name: Build
+          - image_path: ./health-check
+            image_name: he-ch-test-name
+          - image_path: ./goat-home
+            image_name: go-ho-test-name
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
