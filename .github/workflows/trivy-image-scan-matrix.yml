@@ -22,7 +22,7 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          echo ${{ matrix }}
+          echo ${{ matrix.include }}
           docker build -t ${{ matrix.include.image_name }}:${{ github.sha }} ${{ matrix.image_path }} 
 
       - name: Run Trivy vulnerability scanner
