@@ -8,11 +8,11 @@ jobs:
   build:
     strategy:
       matrix:
-        image_path: [./health-check, ./goat-home]
+        image_path: [./infrastrucrure/health-check, ./infrastructure/goat-home]
         include:
-          - image_path: ./health-check
+          - image_path: ./infrastructure/health-check
             image_name: he-ch-test-name
-          - image_path: ./goat-home
+          - image_path: ./infrastructure/goat-home
             image_name: go-ho-test-name
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +21,6 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          echo ${{ matrix.image_name }}
           docker build -t ${{ matrix.image_name }}:${{ github.sha }} ${{ matrix.image_path }} 
 
       - name: Run Trivy vulnerability scanner
