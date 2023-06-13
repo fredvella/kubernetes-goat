@@ -14,8 +14,7 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          cd infrastructure/health-check
-          docker build -t health-check:${{ github.sha }} .
+          bash ./.github/scripts/build-images.sh
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
