@@ -1,0 +1,39 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  build:
+    strategy:
+      matrix:
+        image_path: [./health-check, ./goat-home]
+        include:
+          - image_name: he-ch-test-name
+            image_path: ./health-check
+          - image_name: go-ho-test-name
+            image_path: ./goat-home
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t ${{ matrix.include.image_name }}:${{ github.sha }} ${{ matrix.image_path }} 
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ matrix.include.image_name }}:${{ github.sha }}'
+          format: 'sarif'
+          severity: 'CRITICAL'
+          output: 'trivy-results-${{ matrix.include.image_name }}.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results-${{ matrix.include.image_name }}.sarif'
