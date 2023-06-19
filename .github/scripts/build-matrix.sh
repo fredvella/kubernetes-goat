@@ -18,4 +18,4 @@ for image in $image_paths; do
 done
 
 json=$json']}}'
-echo $json | sed 's/,]/]/g' | json2yaml
+echo $json | sed 's/,]/]/g'
