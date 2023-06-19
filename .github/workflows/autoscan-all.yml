@@ -1,0 +1,21 @@
+name: scan-all
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: set-matrix
+        run: |
+          matrix=$(bash ./.github/scripts/build-matrix.sh)
+          echo $matrix
+          echo $matrix | jq .
+          echo "::set-output name=matrix::$matrix"
+          
